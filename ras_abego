@@ -1,0 +1,32 @@
+#!/bin/bash
+
+usage_exit() {
+  echo "Usage: $0 [-l abego_level] pdbfile ..." 1>&2
+  exit 1
+}
+
+LEVEL=4
+while getopts l:h OPT
+do
+case $OPT in
+ "l" ) LEVEL=$OPTARG ;;
+ "h") usage_exit ;;
+  \?) usage_exit ;;
+      
+esac
+done
+
+shift $((OPTIND-1))
+name=$*
+if [ $# -lt 1  ]; then
+    usage_exit
+fi
+if [ ! -e $* ]; then
+    echo "$* does not exist."
+    exit 1
+fi
+
+$ROSETTA_BIN/ras_abego -nooutput -ignore_unrecognized_res -in:file:centroid_input -s $name -abego $LEVEL -out:mute all
+/opt/local/bin/rasmol -script abego.ras $name                                                                    
+
+
